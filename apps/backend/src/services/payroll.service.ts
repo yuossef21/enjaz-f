@@ -9,7 +9,6 @@ export const payrollService = {
     month?: string;
     year?: number;
     status?: string;
-    date?: string;
   }) {
     let query = supabase
       .from('payroll')
@@ -22,7 +21,7 @@ export const payrollService = {
     }
 
     if (filters?.month) {
-      query = query.eq('month', filters.month);
+      query = query.eq('month', parseInt(filters.month));
     }
 
     if (filters?.year) {
@@ -31,15 +30,6 @@ export const payrollService = {
 
     if (filters?.status) {
       query = query.eq('status', filters.status);
-    }
-
-    // Filter by specific date
-    if (filters?.date) {
-      const startOfDay = new Date(filters.date);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(filters.date);
-      endOfDay.setHours(23, 59, 59, 999);
-      query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
     }
 
     const { data, error } = await query;

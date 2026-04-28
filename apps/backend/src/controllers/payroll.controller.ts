@@ -6,14 +6,13 @@ import { logger } from '../utils/logger.js';
 export const payrollController = {
   async getPayrollRecords(req: AuthRequest, res: Response) {
     try {
-      const { employee_id, month, year, status, date } = req.query;
+      const { employee_id, month, year, status } = req.query;
 
       const records = await payrollService.getPayrollRecords({
         employee_id: employee_id as string,
         month: month as string,
         year: year ? Number(year) : undefined,
         status: status as string,
-        date: date as string,
       });
 
       res.json(records);

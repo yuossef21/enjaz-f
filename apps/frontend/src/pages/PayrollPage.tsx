@@ -13,7 +13,6 @@ export const PayrollPage = () => {
   const [editingRecord, setEditingRecord] = useState<PayrollRecord | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
-  const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const [printingRecord, setPrintingRecord] = useState<any>(null);
   const queryClient = useQueryClient();
@@ -24,11 +23,10 @@ export const PayrollPage = () => {
   console.log('PayrollPage - hasPermission function:', hasPermission);
 
   const { data: records, isLoading } = useQuery({
-    queryKey: ['payroll', statusFilter, yearFilter, dateFilter, monthFilter],
+    queryKey: ['payroll', statusFilter, yearFilter, monthFilter],
     queryFn: () => payrollService.getPayrollRecords({
       status: statusFilter,
       year: yearFilter,
-      date: dateFilter,
       month: monthFilter,
     }),
   });
@@ -63,7 +61,6 @@ export const PayrollPage = () => {
     mutationFn: () => payrollService.exportToExcel({
       status: statusFilter,
       year: yearFilter,
-      date: dateFilter,
       month: monthFilter,
     }),
     onSuccess: (blob) => {
@@ -178,7 +175,7 @@ export const PayrollPage = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -202,21 +199,25 @@ export const PayrollPage = () => {
               ))}
             </select>
 
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="فلتر حسب اليوم"
-            />
-
-            <input
-              type="month"
+            <select
               value={monthFilter}
               onChange={(e) => setMonthFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-              placeholder="فلتر حسب الشهر"
-            />
+            >
+              <option value="">جميع الأشهر</option>
+              <option value="1">يناير</option>
+              <option value="2">فبراير</option>
+              <option value="3">مارس</option>
+              <option value="4">أبريل</option>
+              <option value="5">مايو</option>
+              <option value="6">يونيو</option>
+              <option value="7">يوليو</option>
+              <option value="8">أغسطس</option>
+              <option value="9">سبتمبر</option>
+              <option value="10">أكتوبر</option>
+              <option value="11">نوفمبر</option>
+              <option value="12">ديسمبر</option>
+            </select>
           </div>
         </div>
 

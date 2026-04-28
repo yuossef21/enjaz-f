@@ -51,10 +51,20 @@ export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
           body {
             margin: 0;
             padding: 20px;
+            overflow: hidden !important;
           }
           .print-container {
             max-width: 100%;
             margin: 0;
+            overflow: hidden !important;
+          }
+          html {
+            overflow: hidden !important;
+          }
+        }
+        @media screen {
+          body {
+            overflow: hidden !important;
           }
         }
         @page {

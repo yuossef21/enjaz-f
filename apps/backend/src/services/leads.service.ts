@@ -41,7 +41,7 @@ export const leadsService = {
       query = query.or(`customer_name.ilike.%${filters.search}%,phone.ilike.%${filters.search}%`);
     }
 
-    // Filter by specific date
+    // Filter by specific date (takes priority over month filter)
     if (filters.date) {
       const startOfDay = new Date(filters.date);
       startOfDay.setHours(0, 0, 0, 0);
@@ -49,9 +49,8 @@ export const leadsService = {
       endOfDay.setHours(23, 59, 59, 999);
       query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
     }
-
-    // Filter by month (format: YYYY-MM)
-    if (filters.month) {
+    // Filter by month (format: YYYY-MM) - only if date filter is not set
+    else if (filters.month) {
       const [year, month] = filters.month.split('-');
       const startOfMonth = new Date(parseInt(year), parseInt(month) - 1, 1);
       const endOfMonth = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59, 999);

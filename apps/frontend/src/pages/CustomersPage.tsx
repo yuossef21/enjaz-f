@@ -157,6 +157,9 @@ export const CustomersPage = () => {
                       الرصيد الحالي
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      تاريخ الإنشاء
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                       الحالة
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -184,6 +187,9 @@ export const CustomersPage = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {customer.current_balance?.toLocaleString('ar-IQ')} IQD
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {new Date(customer.created_at).toLocaleDateString('ar-IQ')}
                       </td>
                       <td className="px-6 py-4">
                         <span

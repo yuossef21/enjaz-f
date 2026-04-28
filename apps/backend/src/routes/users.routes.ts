@@ -6,9 +6,12 @@ import { requireRole } from '../middleware/permissions.js';
 const router = Router();
 
 router.use(authenticate);
-router.use(requireRole('admin'));
 
-router.get('/', usersController.getUsers);
+// Allow quality and admin to view users (for filters)
+router.get('/', requireRole('admin', 'quality'), usersController.getUsers);
+
+// Only admin can modify users
+router.use(requireRole('admin'));
 router.post('/', usersController.createUser);
 router.get('/:id', usersController.getUserById);
 router.patch('/:id', usersController.updateUser);
