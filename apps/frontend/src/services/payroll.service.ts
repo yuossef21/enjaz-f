@@ -40,4 +40,12 @@ export const payrollService = {
   async deletePayrollRecord(id: string): Promise<void> {
     await api.delete(`/payroll/${id}`);
   },
+
+  async exportToExcel(params?: { status?: string; year?: number }): Promise<Blob> {
+    const { data } = await api.get('/payroll/export', {
+      params,
+      responseType: 'blob',
+    });
+    return data;
+  },
 };

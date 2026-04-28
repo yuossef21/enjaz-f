@@ -9,6 +9,10 @@ export const leadsController = {
       const { status, search, promoter_id } = req.query;
       const userId = req.user!.userId;
       const role = req.user!.role;
+      const userPermissions = req.user!.permissions || [];
+
+      // Check if user has permission to view all leads
+      const canViewAll = userPermissions.includes('*') || userPermissions.includes('leads:view_all');
 
       const leads = await leadsService.getLeads({
         status: status as string,
@@ -16,6 +20,7 @@ export const leadsController = {
         promoterId: promoter_id as string,
         userId,
         role,
+        canViewAll,
       });
 
       res.json(leads);

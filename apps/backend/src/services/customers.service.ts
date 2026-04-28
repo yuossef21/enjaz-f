@@ -6,10 +6,14 @@ export const customersService = {
     search?: string;
     customer_type?: string;
     is_active?: boolean;
+    created_by?: string;
   }) {
     let query = supabase
       .from('customers')
-      .select('*')
+      .select(`
+        *,
+        creator:created_by(id, full_name, email)
+      `)
       .order('created_at', { ascending: false });
 
     if (filters?.search) {
@@ -22,6 +26,10 @@ export const customersService = {
 
     if (typeof filters?.is_active === 'boolean') {
       query = query.eq('is_active', filters.is_active);
+    }
+
+    if (filters?.created_by) {
+      query = query.eq('created_by', filters.created_by);
     }
 
     const { data, error } = await query;
@@ -48,12 +56,21 @@ export const customersService = {
   },
 
   async createCustomer(customerData: Partial<Customer>) {
-    // Generate customer code
-    const { count } = await supabase
+    // Generate customer code - get the last customer code and increment
+    const { data: lastCustomer } = await supabase
       .from('customers')
-      .select('*', { count: 'exact', head: true });
+      .select('customer_code')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    const customerCode = `CUST-${String((count || 0) + 1).padStart(5, '0')}`;
+    let nextNumber = 1;
+    if (lastCustomer && lastCustomer.customer_code) {
+      const lastNumber = parseInt(lastCustomer.customer_code.replace('CUST-', ''));
+      nextNumber = lastNumber + 1;
+    }
+
+    const customerCode = `CUST-${String(nextNumber).padStart(5, '0')}`;
 
     const { data, error } = await supabase
       .from('customers')

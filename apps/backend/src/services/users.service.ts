@@ -39,6 +39,35 @@ export const usersService = {
   }) {
     const passwordHash = await bcrypt.hash(userData.password, 10);
 
+    // Default permissions based on role
+    let defaultPermissions = userData.permissions;
+    if (!defaultPermissions) {
+      if (userData.role === 'admin') {
+        defaultPermissions = ['*'];
+      } else if (userData.role === 'promoter') {
+        defaultPermissions = [
+          'leads:view',
+          'leads:create',
+          'leads:edit',
+          'customers:view',
+          'customers:create',
+          'customers:edit',
+          'attendance:view',
+          'attendance:checkin',
+        ];
+      } else if (userData.role === 'quality') {
+        defaultPermissions = [
+          'leads:view',
+          'leads:view_all',
+          'leads:approve',
+          'customers:view',
+          'customers:view_all',
+        ];
+      } else {
+        defaultPermissions = [];
+      }
+    }
+
     const { data, error } = await supabase
       .from('users')
       .insert({
@@ -46,7 +75,7 @@ export const usersService = {
         password_hash: passwordHash,
         full_name: userData.full_name,
         role: userData.role,
-        permissions: userData.permissions || [],
+        permissions: defaultPermissions,
       })
       .select('id, email, full_name, role, permissions, is_active, created_at, updated_at')
       .single();

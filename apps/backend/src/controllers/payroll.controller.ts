@@ -106,4 +106,22 @@ export const payrollController = {
       res.status(500).json({ error: error.message });
     }
   },
+
+  async exportToExcel(req: AuthRequest, res: Response) {
+    try {
+      const { status, year } = req.query;
+
+      const buffer = await payrollService.exportToExcel({
+        status: status as string,
+        year: year ? Number(year) : undefined,
+      });
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename=payroll-${Date.now()}.xlsx`);
+      res.send(buffer);
+    } catch (error: any) {
+      logger.error('Export payroll error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  },
 };

@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { payrollService } from '@/services/payroll.service';
 import { employeesService } from '@/services/employees.service';
 import { Layout } from '@/components/layout/Layout';
-import { Plus, Check, DollarSign, Trash2, Edit } from 'lucide-react';
+import { Plus, Check, DollarSign, Trash2, Edit, Download, Printer } from 'lucide-react';
 import { PayrollRecord } from '@/types';
 import { useAuthStore } from '@/store/authStore';
+import { generatePayrollPDF } from '@/utils/payrollPDF';
 
 export const PayrollPage = () => {
   const [showForm, setShowForm] = useState(false);
@@ -13,7 +14,11 @@ export const PayrollPage = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [yearFilter, setYearFilter] = useState(new Date().getFullYear());
   const queryClient = useQueryClient();
-  const { hasPermission } = useAuthStore();
+  const { hasPermission, user } = useAuthStore();
+
+  // Debug logging
+  console.log('PayrollPage - Current user:', user);
+  console.log('PayrollPage - hasPermission function:', hasPermission);
 
   const { data: records, isLoading } = useQuery({
     queryKey: ['payroll', statusFilter, yearFilter],
@@ -45,6 +50,37 @@ export const PayrollPage = () => {
       queryClient.invalidateQueries({ queryKey: ['payroll'] });
     },
   });
+
+  const exportMutation = useMutation({
+    mutationFn: () => payrollService.exportToExcel({ status: statusFilter, year: yearFilter }),
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `payroll-${yearFilter}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+  });
+
+  const handleExport = () => {
+    exportMutation.mutate();
+  };
+
+  const handlePrintInvoice = (record: any) => {
+    generatePayrollPDF({
+      employee_name: record.employee?.full_name || '-',
+      position: record.employee?.position,
+      department: record.employee?.department,
+      month: record.month,
+      year: record.year,
+      base_salary: record.base_salary,
+      bonuses: record.bonuses,
+      deductions: record.deductions,
+      net_salary: record.net_salary,
+      payment_date: record.payment_date,
+    });
+  };
 
   const handleEdit = (record: PayrollRecord) => {
     setEditingRecord(record);
@@ -104,18 +140,28 @@ export const PayrollPage = () => {
             <h2 className="text-2xl font-bold text-gray-900">إدارة الرواتب</h2>
             <p className="text-gray-600 mt-1">عرض وإدارة سجلات الرواتب</p>
           </div>
-          {hasPermission('payroll:create') && (
+          <div className="flex gap-3">
             <button
-              onClick={() => {
-                setEditingRecord(null);
-                setShowForm(true);
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              onClick={handleExport}
+              disabled={exportMutation.isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
             >
-              <Plus className="w-4 h-4" />
-              سجل راتب جديد
+              <Download className="w-4 h-4" />
+              تصدير Excel
             </button>
-          )}
+            {hasPermission('payroll:create') && (
+              <button
+                onClick={() => {
+                  setEditingRecord(null);
+                  setShowForm(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                <Plus className="w-4 h-4" />
+                سجل راتب جديد
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 flex gap-4">
@@ -187,10 +233,10 @@ export const PayrollPage = () => {
                         {getMonthLabel(record.month)} {record.year}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
-                        {record.basic_salary?.toLocaleString('ar-IQ')} IQD
+                        {record.base_salary?.toLocaleString('ar-IQ')} IQD
                       </td>
                       <td className="px-6 py-4 text-sm text-green-600">
-                        +{record.allowances?.toLocaleString('ar-IQ')} IQD
+                        +{record.bonuses?.toLocaleString('ar-IQ')} IQD
                       </td>
                       <td className="px-6 py-4 text-sm text-red-600">
                         -{record.deductions?.toLocaleString('ar-IQ')} IQD
@@ -201,6 +247,23 @@ export const PayrollPage = () => {
                       <td className="px-6 py-4">{getStatusBadge(record.status)}</td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          {(() => {
+                            console.log('Record:', record.id, 'Status:', record.status);
+                            console.log('hasPermission(payroll:edit):', hasPermission('payroll:edit'));
+                            console.log('hasPermission(payroll:approve):', hasPermission('payroll:approve'));
+                            console.log('hasPermission(payroll:pay):', hasPermission('payroll:pay'));
+                            console.log('hasPermission(payroll:delete):', hasPermission('payroll:delete'));
+                            return null;
+                          })()}
+                          {record.status === 'paid' && (
+                            <button
+                              onClick={() => handlePrintInvoice(record)}
+                              className="p-1 text-orange-600 hover:bg-orange-50 rounded"
+                              title="طباعة فاتورة"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </button>
+                          )}
                           {hasPermission('payroll:edit') && record.status === 'draft' && (
                             <button
                               onClick={() => handleEdit(record)}
@@ -284,13 +347,13 @@ const PayrollForm = ({
     employee_id: record?.employee_id || '',
     month: record?.month || new Date().toISOString().slice(5, 7),
     year: record?.year || new Date().getFullYear(),
-    basic_salary: record?.basic_salary || 0,
-    allowances: record?.allowances || 0,
+    base_salary: record?.base_salary || 0,
+    bonuses: record?.bonuses || 0,
     deductions: record?.deductions || 0,
     notes: record?.notes || '',
   });
 
-  const netSalary = formData.basic_salary + formData.allowances - formData.deductions;
+  const netSalary = formData.base_salary + formData.bonuses - formData.deductions;
 
   const mutation = useMutation({
     mutationFn: (data: any) =>
@@ -385,8 +448,8 @@ const PayrollForm = ({
                 type="number"
                 required
                 min="0"
-                value={formData.basic_salary}
-                onChange={(e) => setFormData({ ...formData, basic_salary: Number(e.target.value) })}
+                value={formData.base_salary}
+                onChange={(e) => setFormData({ ...formData, base_salary: Number(e.target.value) })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -398,8 +461,8 @@ const PayrollForm = ({
               <input
                 type="number"
                 min="0"
-                value={formData.allowances}
-                onChange={(e) => setFormData({ ...formData, allowances: Number(e.target.value) })}
+                value={formData.bonuses}
+                onChange={(e) => setFormData({ ...formData, bonuses: Number(e.target.value) })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               />
             </div>

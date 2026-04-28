@@ -260,8 +260,8 @@ export interface PayrollRecord {
   employee_id: string;
   month: string;
   year: number;
-  basic_salary: number;
-  allowances: number;
+  base_salary: number;
+  bonuses: number;
   deductions: number;
   net_salary: number;
   status: 'draft' | 'approved' | 'paid';

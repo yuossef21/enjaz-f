@@ -7,6 +7,7 @@ const router = Router();
 
 router.use(authenticate);
 
+router.get('/export', customersController.exportCustomers);
 router.get('/', customersController.getCustomers);
 router.post('/', requirePermission('customers:create'), customersController.createCustomer);
 router.get('/:id', customersController.getCustomerById);

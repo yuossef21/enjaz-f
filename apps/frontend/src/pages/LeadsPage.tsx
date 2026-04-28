@@ -20,10 +20,12 @@ export const LeadsPage = () => {
     queryFn: () => leadsService.getLeads({ status: statusFilter, search, promoter_id: promoterFilter }),
   });
 
-  // Get unique promoters for filter
+  // Get unique promoters for filter (only if user can view all leads)
+  const canViewAllLeads = hasPermission('leads:view_all') || hasPermission('*');
   const { data: users } = useQuery({
     queryKey: ['users-promoters'],
     queryFn: usersService.getUsers,
+    enabled: canViewAllLeads,
   });
 
   const promoters = users?.filter((u: any) => u.role === 'promoter') || [];
@@ -123,7 +125,7 @@ export const LeadsPage = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className={`grid grid-cols-1 ${canViewAllLeads ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -144,18 +146,20 @@ export const LeadsPage = () => {
               <option value="opportunity">فرصة</option>
               <option value="rejected">مرفوض</option>
             </select>
-            <select
-              value={promoterFilter}
-              onChange={(e) => setPromoterFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">جميع المروجين</option>
-              {promoters.map((promoter: any) => (
-                <option key={promoter.id} value={promoter.id}>
-                  {promoter.full_name}
-                </option>
-              ))}
-            </select>
+            {canViewAllLeads && (
+              <select
+                value={promoterFilter}
+                onChange={(e) => setPromoterFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">جميع المروجين</option>
+                {promoters.map((promoter: any) => (
+                  <option key={promoter.id} value={promoter.id}>
+                    {promoter.full_name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         </div>
 

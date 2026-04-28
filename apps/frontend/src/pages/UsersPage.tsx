@@ -8,6 +8,7 @@ import { User } from '@/types';
 // قائمة كل الصلاحيات المتاحة في النظام
 const ALL_PERMISSIONS = [
   { id: 'leads:view', label: 'عرض كل الطلبات', category: 'الطلبات' },
+  { id: 'leads:view_all', label: 'عرض جميع الطلبات', category: 'الطلبات' },
   { id: 'leads:create', label: 'إضافة طلب جديد', category: 'الطلبات' },
   { id: 'leads:edit', label: 'تعديل الطلبات', category: 'الطلبات' },
   { id: 'leads:delete', label: 'حذف الطلبات', category: 'الطلبات' },
@@ -15,6 +16,7 @@ const ALL_PERMISSIONS = [
   { id: 'leads:export', label: 'تصدير Excel للطلبات', category: 'الطلبات' },
 
   { id: 'customers:view', label: 'عرض العملاء', category: 'العملاء' },
+  { id: 'customers:view_all', label: 'عرض جميع العملاء', category: 'العملاء' },
   { id: 'customers:create', label: 'إضافة عميل', category: 'العملاء' },
   { id: 'customers:edit', label: 'تعديل عميل', category: 'العملاء' },
   { id: 'customers:delete', label: 'حذف عميل', category: 'العملاء' },

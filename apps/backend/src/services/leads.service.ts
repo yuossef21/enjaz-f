@@ -11,6 +11,7 @@ export const leadsService = {
     promoterId?: string;
     userId: string;
     role: string;
+    canViewAll?: boolean;
   }) {
     let query = supabase
       .from('leads')
@@ -21,8 +22,8 @@ export const leadsService = {
       `)
       .order('created_at', { ascending: false });
 
-    // المروجين يشوفون بس طلباتهم
-    if (filters.role === 'promoter') {
+    // المروجين يشوفون بس طلباتهم (إلا إذا عندهم صلاحية عرض الكل)
+    if (filters.role === 'promoter' && !filters.canViewAll) {
       query = query.eq('promoter_id', filters.userId);
     }
 

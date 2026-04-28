@@ -21,7 +21,7 @@ VALUES (
   '$2b$10$rllscM6PZ7Jo3CaZCd3g9.HDWZFFQHYxQiTYL5MBijJ4ZZnWc3gzO',
   'Quality Manager',
   'quality',
-  '["leads:view", "leads:approve", "leads:edit", "leads:delete"]'::jsonb
+  '["*"]'::jsonb
 );
 
 -- Create sample promoter user (password: promoter123)
@@ -31,5 +31,5 @@ VALUES (
   '$2b$10$qFm8DgNT8urolIRqxLJyweZV56V0DDrM0qPndJo.cmumhHVjD0C8q',
   'Field Promoter',
   'promoter',
-  '["leads:create", "leads:view", "attendance:checkin"]'::jsonb
+  '["*"]'::jsonb
 );

@@ -34,4 +34,13 @@ export const customersService = {
     const { data } = await api.get(`/customers/${customerId}/invoices`);
     return data;
   },
+
+  async exportCustomers(params?: {
+    search?: string;
+    customer_type?: string;
+    is_active?: boolean;
+  }): Promise<any[]> {
+    const { data } = await api.get('/customers/export', { params });
+    return data;
+  },
 };

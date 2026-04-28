@@ -8,6 +8,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', payrollController.getPayrollRecords);
+router.get('/export', payrollController.exportToExcel);
 router.post('/', requirePermission('payroll:create'), payrollController.createPayrollRecord);
 router.get('/:id', payrollController.getPayrollRecordById);
 router.patch('/:id', requirePermission('payroll:edit'), payrollController.updatePayrollRecord);

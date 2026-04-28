@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customersService } from '@/services/customers.service';
 import { Layout } from '@/components/layout/Layout';
-import { Plus, Trash2, Edit, Search } from 'lucide-react';
+import { Plus, Trash2, Edit, Search, Download } from 'lucide-react';
 import { Customer } from '@/types';
+import * as XLSX from 'xlsx';
 
 export const CustomersPage = () => {
   const [showForm, setShowForm] = useState(false);
@@ -35,6 +36,19 @@ export const CustomersPage = () => {
     setShowForm(true);
   };
 
+  const handleExport = async () => {
+    try {
+      const data = await customersService.exportCustomers({ search, customer_type: typeFilter });
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'العملاء');
+      XLSX.writeFile(wb, `customers_${new Date().toISOString().split('T')[0]}.xlsx`);
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('حدث خطأ أثناء التصدير');
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -43,16 +57,25 @@ export const CustomersPage = () => {
             <h2 className="text-2xl font-bold text-gray-900">إدارة العملاء</h2>
             <p className="text-gray-600 mt-1">عرض وإدارة جميع العملاء</p>
           </div>
-          <button
-            onClick={() => {
-              setEditingCustomer(null);
-              setShowForm(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4" />
-            عميل جديد
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            >
+              <Download className="w-4 h-4" />
+              تصدير Excel
+            </button>
+            <button
+              onClick={() => {
+                setEditingCustomer(null);
+                setShowForm(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <Plus className="w-4 h-4" />
+              عميل جديد
+            </button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -102,6 +125,9 @@ export const CustomersPage = () => {
                       الهاتف
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                      المروج
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                       الرصيد الحالي
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
@@ -126,6 +152,9 @@ export const CustomersPage = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {customer.phone || '-'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {(customer as any).creator?.full_name || '-'}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {customer.current_balance?.toLocaleString('ar-IQ')} IQD
