@@ -18,377 +18,202 @@ interface PayrollInvoiceProps {
 
 export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
   useEffect(() => {
-    // Open print in a new window
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    // Add print class to body and hide root
+    document.body.classList.add('printing-invoice');
+    const root = document.getElementById('root');
+    if (root) {
+      root.style.display = 'none';
+    }
 
-    if (printWindow) {
-      const getMonthName = (month: string) => {
-        const months: Record<string, string> = {
-          '01': 'يناير', '02': 'فبراير', '03': 'مارس', '04': 'أبريل',
-          '05': 'مايو', '06': 'يونيو', '07': 'يوليو', '08': 'أغسطس',
-          '09': 'سبتمبر', '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر',
-        };
-        return months[month] || month;
-      };
+    // Auto print when component mounts
+    const timer = setTimeout(() => {
+      window.print();
+    }, 300);
 
-      const today = new Date().toLocaleDateString('ar-IQ', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+    return () => {
+      clearTimeout(timer);
+      document.body.classList.remove('printing-invoice');
+      if (root) {
+        root.style.display = 'block';
+      }
+    };
+  }, []);
 
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>فاتورة راتب - ${data.employee_name}</title>
-          <style>
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-            }
+  const getMonthName = (month: string) => {
+    const months: Record<string, string> = {
+      '01': 'يناير', '02': 'فبراير', '03': 'مارس', '04': 'أبريل',
+      '05': 'مايو', '06': 'يونيو', '07': 'يوليو', '08': 'أغسطس',
+      '09': 'سبتمبر', '10': 'أكتوبر', '11': 'نوفمبر', '12': 'ديسمبر',
+    };
+    return months[month] || month;
+  };
 
-            body {
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              background: white;
-              padding: 20mm;
-              color: #1f2937;
-            }
+  const today = new Date().toLocaleDateString('ar-IQ', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
-            .invoice-container {
-              max-width: 210mm;
-              margin: 0 auto;
-              background: white;
-            }
+  return (
+    <>
+      <style>{`
+        @media print {
+          body.printing-invoice * {
+            visibility: hidden;
+          }
+          body.printing-invoice .print-invoice-content,
+          body.printing-invoice .print-invoice-content * {
+            visibility: visible;
+          }
+          body.printing-invoice .print-invoice-content {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+          @page {
+            size: A4;
+            margin: 10mm;
+          }
+        }
+      `}</style>
 
-            .header {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              margin-bottom: 30px;
-              padding-bottom: 20px;
-              border-bottom: 3px solid #f97316;
-            }
+      <div className="fixed inset-0 bg-white z-50 overflow-auto">
+        <div className="no-print fixed top-4 right-4 flex gap-2">
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            طباعة
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+          >
+            إغلاق
+          </button>
+        </div>
 
-            .logo-section {
-              display: flex;
-              align-items: center;
-              gap: 15px;
-            }
-
-            .logo {
-              width: 80px;
-              height: 80px;
-              background: #f97316;
-              border-radius: 8px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex-direction: column;
-              color: white;
-            }
-
-            .logo-title {
-              font-size: 24px;
-              font-weight: bold;
-            }
-
-            .logo-subtitle {
-              font-size: 11px;
-              margin-top: 2px;
-            }
-
-            .header-text h1 {
-              font-size: 28px;
-              font-weight: bold;
-              color: #1f2937;
-              margin-bottom: 5px;
-            }
-
-            .header-text p {
-              color: #6b7280;
-              font-size: 14px;
-            }
-
-            .date-section {
-              text-align: left;
-            }
-
-            .date-section p:first-child {
-              font-size: 12px;
-              color: #6b7280;
-              margin-bottom: 5px;
-            }
-
-            .date-section p:last-child {
-              font-weight: 600;
-              font-size: 14px;
-            }
-
-            .employee-info {
-              background: #f9fafb;
-              border-radius: 8px;
-              padding: 20px;
-              margin-bottom: 25px;
-            }
-
-            .employee-info h2 {
-              font-size: 18px;
-              font-weight: bold;
-              color: #1f2937;
-              margin-bottom: 15px;
-            }
-
-            .info-grid {
-              display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 15px;
-            }
-
-            .info-item p:first-child {
-              font-size: 12px;
-              color: #6b7280;
-              margin-bottom: 5px;
-            }
-
-            .info-item p:last-child {
-              font-size: 16px;
-              font-weight: 600;
-              color: #1f2937;
-            }
-
-            .salary-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 25px;
-            }
-
-            .salary-table thead {
-              background: #f97316;
-              color: white;
-            }
-
-            .salary-table th {
-              padding: 15px 20px;
-              text-align: right;
-              font-size: 16px;
-              font-weight: bold;
-              border: 1px solid #ea580c;
-            }
-
-            .salary-table td {
-              padding: 15px 20px;
-              border: 1px solid #d1d5db;
-              font-size: 15px;
-            }
-
-            .salary-table tbody tr:nth-child(odd) {
-              background: white;
-            }
-
-            .salary-table tbody tr:nth-child(even) {
-              background: #f9fafb;
-            }
-
-            .salary-table .label-cell {
-              color: #1f2937;
-              font-weight: 500;
-            }
-
-            .salary-table .amount-cell {
-              color: #111827;
-              font-weight: 600;
-            }
-
-            .salary-table .bonus-cell {
-              color: #059669;
-            }
-
-            .salary-table .deduction-cell {
-              color: #dc2626;
-            }
-
-            .net-salary {
-              background: #f97316;
-              color: white;
-              border-radius: 8px;
-              padding: 20px;
-              margin-bottom: 40px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }
-
-            .net-salary span:first-child {
-              font-size: 18px;
-              font-weight: bold;
-            }
-
-            .net-salary span:last-child {
-              font-size: 28px;
-              font-weight: bold;
-            }
-
-            .signatures {
-              display: grid;
-              grid-template-columns: repeat(2, 1fr);
-              gap: 50px;
-              margin-top: 60px;
-            }
-
-            .signature-box {
-              text-align: center;
-            }
-
-            .signature-line {
-              border-top: 2px solid #9ca3af;
-              padding-top: 10px;
-              margin-bottom: 8px;
-            }
-
-            .signature-line p {
-              color: #6b7280;
-              font-size: 13px;
-            }
-
-            .signature-role {
-              color: #9ca3af;
-              font-size: 11px;
-            }
-
-            @media print {
-              body {
-                padding: 0;
-                margin: 0;
-              }
-
-              @page {
-                size: A4;
-                margin: 10mm;
-              }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="invoice-container">
-            <!-- Header -->
-            <div class="header">
-              <div class="logo-section">
-                <div class="logo">
-                  <div class="logo-title">إنجاز</div>
-                  <div class="logo-subtitle">للتوصيل السريع</div>
-                </div>
-                <div class="header-text">
-                  <h1>فاتورة راتب موظفين</h1>
-                  <p>Payroll Invoice</p>
+        <div className="print-invoice-content max-w-4xl mx-auto p-8 bg-white" dir="rtl">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-8 border-b-2 border-orange-500 pb-6">
+            <div className="flex items-center gap-4">
+              <div className="w-24 h-24 bg-orange-500 rounded-lg flex items-center justify-center">
+                <div className="text-center text-white">
+                  <div className="text-2xl font-bold">إنجاز</div>
+                  <div className="text-sm">للتوصيل السريع</div>
                 </div>
               </div>
-              <div class="date-section">
-                <p>التاريخ</p>
-                <p>${today}</p>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">فاتورة راتب موظفين</h1>
+                <p className="text-gray-600 mt-1">Payroll Invoice</p>
               </div>
             </div>
-
-            <!-- Employee Info -->
-            <div class="employee-info">
-              <h2>معلومات الموظف</h2>
-              <div class="info-grid">
-                <div class="info-item">
-                  <p>اسم الموظف</p>
-                  <p>${data.employee_name}</p>
-                </div>
-                ${data.position ? `
-                <div class="info-item">
-                  <p>المنصب</p>
-                  <p>${data.position}</p>
-                </div>
-                ` : ''}
-                ${data.department ? `
-                <div class="info-item">
-                  <p>القسم</p>
-                  <p>${data.department}</p>
-                </div>
-                ` : ''}
-                <div class="info-item">
-                  <p>الشهر / السنة</p>
-                  <p>${getMonthName(data.month)} ${data.year}</p>
-                </div>
-              </div>
+            <div className="text-left">
+              <p className="text-sm text-gray-600">التاريخ</p>
+              <p className="font-semibold">{today}</p>
             </div>
+          </div>
 
-            <!-- Salary Details Table -->
-            <table class="salary-table">
-              <thead>
-                <tr>
-                  <th>البيان</th>
-                  <th>المبلغ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="label-cell">الراتب الأساسي</td>
-                  <td class="amount-cell">${data.base_salary.toLocaleString('ar-IQ')} د.ع</td>
-                </tr>
-                <tr>
-                  <td class="label-cell">البدلات</td>
-                  <td class="amount-cell bonus-cell">+${data.bonuses.toLocaleString('ar-IQ')} د.ع</td>
-                </tr>
-                <tr>
-                  <td class="label-cell">الخصومات</td>
-                  <td class="amount-cell deduction-cell">-${data.deductions.toLocaleString('ar-IQ')} د.ع</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <!-- Net Salary -->
-            <div class="net-salary">
-              <span>إجمالي الصافي</span>
-              <span>${data.net_salary.toLocaleString('ar-IQ')} د.ع</span>
-            </div>
-
-            <!-- Signatures -->
-            <div class="signatures">
-              <div class="signature-box">
-                <div class="signature-line">
-                  <p>توقيع المحاسب</p>
-                </div>
-                <p class="signature-role">(المحاسب)</p>
+          {/* Employee Info */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">معلومات الموظف</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">اسم الموظف</p>
+                <p className="font-semibold text-lg">{data.employee_name}</p>
               </div>
-              <div class="signature-box">
-                <div class="signature-line">
-                  <p>توقيع الموظف</p>
+              {data.position && (
+                <div>
+                  <p className="text-sm text-gray-600">المنصب</p>
+                  <p className="font-semibold">{data.position}</p>
                 </div>
-                <p class="signature-role">(المستلم)</p>
+              )}
+              {data.department && (
+                <div>
+                  <p className="text-sm text-gray-600">القسم</p>
+                  <p className="font-semibold">{data.department}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-gray-600">الشهر / السنة</p>
+                <p className="font-semibold">{getMonthName(data.month)} {data.year}</p>
               </div>
             </div>
           </div>
 
-          <script>
-            // Wait for all content to load
-            window.addEventListener('load', function() {
-              setTimeout(function() {
-                window.print();
-              }, 1000);
-            });
+          {/* Salary Details Table */}
+          <div className="mb-6">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-orange-500 text-white">
+                  <th className="border border-orange-600 px-6 py-3 text-right text-lg font-bold">
+                    البيان
+                  </th>
+                  <th className="border border-orange-600 px-6 py-3 text-right text-lg font-bold">
+                    المبلغ
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="bg-white">
+                  <td className="border border-gray-300 px-6 py-4 text-gray-800 font-medium">
+                    الراتب الأساسي
+                  </td>
+                  <td className="border border-gray-300 px-6 py-4 text-gray-900 font-semibold">
+                    {data.base_salary.toLocaleString('ar-IQ')} د.ع
+                  </td>
+                </tr>
+                <tr className="bg-gray-50">
+                  <td className="border border-gray-300 px-6 py-4 text-gray-800 font-medium">
+                    البدلات
+                  </td>
+                  <td className="border border-gray-300 px-6 py-4 text-green-600 font-semibold">
+                    +{data.bonuses.toLocaleString('ar-IQ')} د.ع
+                  </td>
+                </tr>
+                <tr className="bg-white">
+                  <td className="border border-gray-300 px-6 py-4 text-gray-800 font-medium">
+                    الخصومات
+                  </td>
+                  <td className="border border-gray-300 px-6 py-4 text-red-600 font-semibold">
+                    -{data.deductions.toLocaleString('ar-IQ')} د.ع
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-            // Close window after print dialog is closed
-            window.addEventListener('afterprint', function() {
-              window.close();
-            });
-          </script>
-        </body>
-        </html>
-      `);
+          {/* Net Salary */}
+          <div className="bg-orange-500 text-white rounded-lg p-6 mb-8">
+            <div className="flex justify-between items-center">
+              <span className="text-xl font-bold">إجمالي الصافي</span>
+              <span className="text-3xl font-bold">
+                {data.net_salary.toLocaleString('ar-IQ')} د.ع
+              </span>
+            </div>
+          </div>
 
-      printWindow.document.close();
-    }
-
-    // Close the modal immediately
-    onClose();
-  }, [data, onClose]);
-
-  return null;
+          {/* Signatures */}
+          <div className="grid grid-cols-2 gap-12 mt-16">
+            <div className="text-center">
+              <div className="border-t-2 border-gray-400 pt-2 mb-2">
+                <p className="text-gray-600 text-sm">توقيع المحاسب</p>
+              </div>
+              <p className="text-gray-500 text-xs">(المحاسب)</p>
+            </div>
+            <div className="text-center">
+              <div className="border-t-2 border-gray-400 pt-2 mb-2">
+                <p className="text-gray-600 text-sm">توقيع الموظف</p>
+              </div>
+              <p className="text-gray-500 text-xs">(المستلم)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
