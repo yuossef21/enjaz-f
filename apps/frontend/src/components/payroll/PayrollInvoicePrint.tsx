@@ -18,13 +18,6 @@ interface PayrollInvoiceProps {
 
 export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
   useEffect(() => {
-    // Add print class to body and hide root
-    document.body.classList.add('printing-invoice');
-    const root = document.getElementById('root');
-    if (root) {
-      root.style.display = 'none';
-    }
-
     // Auto print when component mounts
     const timer = setTimeout(() => {
       window.print();
@@ -32,10 +25,6 @@ export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
 
     return () => {
       clearTimeout(timer);
-      document.body.classList.remove('printing-invoice');
-      if (root) {
-        root.style.display = 'block';
-      }
     };
   }, []);
 
@@ -58,14 +47,14 @@ export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
     <>
       <style>{`
         @media print {
-          body.printing-invoice * {
+          body * {
             visibility: hidden;
           }
-          body.printing-invoice .print-invoice-content,
-          body.printing-invoice .print-invoice-content * {
-            visibility: visible;
+          .print-invoice-content,
+          .print-invoice-content * {
+            visibility: visible !important;
           }
-          body.printing-invoice .print-invoice-content {
+          .print-invoice-content {
             position: absolute;
             left: 0;
             top: 0;
@@ -73,6 +62,10 @@ export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
           }
           .no-print {
             display: none !important;
+          }
+          body {
+            margin: 0;
+            padding: 0;
           }
           @page {
             size: A4;
