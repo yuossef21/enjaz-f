@@ -100,7 +100,7 @@ export const Layout = ({ children }: LayoutProps) => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex overflow-x-hidden">
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
@@ -110,7 +110,7 @@ export const Layout = ({ children }: LayoutProps) => {
       )}
 
       {/* Sidebar */}
-      <aside className={`w-64 bg-white shadow-lg fixed right-0 top-0 h-full overflow-y-auto z-50 transition-transform duration-300 ${
+      <aside className={`w-64 bg-white shadow-lg fixed right-0 top-0 h-full overflow-y-auto z-50 transition-transform duration-300 md:translate-x-0 ${
         isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
       }`}>
         <div className="p-6 border-b border-gray-200">
@@ -165,7 +165,7 @@ export const Layout = ({ children }: LayoutProps) => {
       </aside>
 
       {/* Main Content */}
-      <div className="mr-0 md:mr-64 flex-1">
+      <div className="mr-0 md:mr-64 flex-1 w-full max-w-full overflow-x-hidden">
         {/* Top Navigation */}
         <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
           <div className="px-4 md:px-8 py-4">
@@ -197,7 +197,7 @@ export const Layout = ({ children }: LayoutProps) => {
         </nav>
 
         {/* Page Content */}
-        <main className="p-4 md:p-8">{children}</main>
+        <main className="p-4 md:p-8 w-full max-w-full overflow-x-hidden">{children}</main>
       </div>
     </div>
   );

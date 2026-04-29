@@ -5,6 +5,7 @@ export const customersService = {
   async getCustomers(params?: {
     search?: string;
     customer_type?: string;
+    promoter_id?: string;
     is_active?: boolean;
     date?: string;
     month?: string;
@@ -40,6 +41,7 @@ export const customersService = {
   async exportCustomers(params?: {
     search?: string;
     customer_type?: string;
+    promoter_id?: string;
     is_active?: boolean;
     date?: string;
     month?: string;

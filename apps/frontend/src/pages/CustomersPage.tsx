@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { customersService } from '@/services/customers.service';
+import { usersService } from '@/services/users.service';
 import { Layout } from '@/components/layout/Layout';
+import { useAuthStore } from '@/store/authStore';
 import { Plus, Trash2, Edit, Search, Download } from 'lucide-react';
 import { Customer } from '@/types';
 import * as XLSX from 'xlsx';
@@ -11,15 +13,28 @@ export const CustomersPage = () => {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [promoterFilter, setPromoterFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [monthFilter, setMonthFilter] = useState('');
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuthStore();
+
+  // Get unique promoters for filter
+  const canViewAllCustomers = hasPermission('customers:view_all') || hasPermission('*');
+  const { data: users } = useQuery({
+    queryKey: ['users-promoters'],
+    queryFn: usersService.getUsers,
+    enabled: canViewAllCustomers,
+  });
+
+  const promoters = users?.filter((u: any) => u.role === 'promoter') || [];
 
   const { data: customers, isLoading } = useQuery({
-    queryKey: ['customers', search, typeFilter, dateFilter, monthFilter],
+    queryKey: ['customers', search, typeFilter, promoterFilter, dateFilter, monthFilter],
     queryFn: () => customersService.getCustomers({
       search,
       customer_type: typeFilter,
+      promoter_id: promoterFilter,
       date: dateFilter,
       month: monthFilter,
     }),
@@ -48,6 +63,7 @@ export const CustomersPage = () => {
       const data = await customersService.exportCustomers({
         search,
         customer_type: typeFilter,
+        promoter_id: promoterFilter,
         date: dateFilter,
         month: monthFilter,
       });
@@ -92,7 +108,7 @@ export const CustomersPage = () => {
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -112,6 +128,20 @@ export const CustomersPage = () => {
               <option value="individual">فرد</option>
               <option value="company">شركة</option>
             </select>
+            {canViewAllCustomers && (
+              <select
+                value={promoterFilter}
+                onChange={(e) => setPromoterFilter(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">جميع المروجين</option>
+                {promoters.map((promoter: any) => (
+                  <option key={promoter.id} value={promoter.id}>
+                    {promoter.full_name}
+                  </option>
+                ))}
+              </select>
+            )}
             <input
               type="date"
               value={dateFilter}
@@ -128,6 +158,26 @@ export const CustomersPage = () => {
             />
           </div>
         </div>
+
+        {/* Statistics Summary */}
+        {promoterFilter && customers && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-600 font-medium">إحصائيات المروج المحدد</p>
+                <p className="text-2xl font-bold text-green-900 mt-1">
+                  {customers.length} عميل
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-green-600">المروج</p>
+                <p className="text-sm font-semibold text-green-900">
+                  {promoters.find((p: any) => p.id === promoterFilter)?.full_name || '-'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Customers Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
