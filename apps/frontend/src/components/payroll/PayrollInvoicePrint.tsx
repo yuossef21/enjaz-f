@@ -367,14 +367,17 @@ export const PayrollInvoicePrint = ({ data, onClose }: PayrollInvoiceProps) => {
           </div>
 
           <script>
-            window.onload = function() {
+            // Wait for all content to load
+            window.addEventListener('load', function() {
               setTimeout(function() {
                 window.print();
-                window.onafterprint = function() {
-                  window.close();
-                };
-              }, 500);
-            };
+              }, 1000);
+            });
+
+            // Close window after print dialog is closed
+            window.addEventListener('afterprint', function() {
+              window.close();
+            });
           </script>
         </body>
         </html>
