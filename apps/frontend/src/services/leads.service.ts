@@ -31,11 +31,13 @@ export const leadsService = {
   async updateStatus(
     id: string,
     status: string,
-    rejection_reason?: string
+    rejection_reason?: string,
+    opportunity_notes?: string
   ): Promise<Lead> {
     const { data } = await api.patch<Lead>(`/leads/${id}/status`, {
       status,
       rejection_reason,
+      opportunity_notes,
     });
     return data;
   },

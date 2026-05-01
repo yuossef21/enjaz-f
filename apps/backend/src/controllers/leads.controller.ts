@@ -82,7 +82,7 @@ export const leadsController = {
   async updateStatus(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
-      const { status, rejection_reason } = req.body;
+      const { status, rejection_reason, opportunity_notes } = req.body;
 
       if (!status) {
         res.status(400).json({ error: 'Status is required' });
@@ -93,7 +93,8 @@ export const leadsController = {
         id,
         status,
         req.user!.userId,
-        rejection_reason
+        rejection_reason,
+        opportunity_notes
       );
 
       logger.info(`Lead status updated: ${id} to ${status} by ${req.user!.email}`);

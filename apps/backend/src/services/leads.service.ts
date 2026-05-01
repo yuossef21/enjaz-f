@@ -117,7 +117,8 @@ export const leadsService = {
     id: string,
     status: string,
     reviewedBy: string,
-    rejectionReason?: string
+    rejectionReason?: string,
+    opportunityNotes?: string
   ) {
     const updates: any = {
       status,
@@ -128,6 +129,10 @@ export const leadsService = {
 
     if (status === 'rejected' && rejectionReason) {
       updates.rejection_reason = rejectionReason;
+    }
+
+    if (status === 'opportunity' && opportunityNotes) {
+      updates.opportunity_notes = opportunityNotes;
     }
 
     const { data, error } = await supabase

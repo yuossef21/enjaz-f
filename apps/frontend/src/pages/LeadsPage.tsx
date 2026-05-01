@@ -59,8 +59,8 @@ export const LeadsPage = () => {
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status, rejection_reason }: { id: string; status: string; rejection_reason?: string }) =>
-      leadsService.updateStatus(id, status, rejection_reason),
+    mutationFn: ({ id, status, rejection_reason, opportunity_notes }: { id: string; status: string; rejection_reason?: string; opportunity_notes?: string }) =>
+      leadsService.updateStatus(id, status, rejection_reason, opportunity_notes),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
     },
@@ -73,12 +73,17 @@ export const LeadsPage = () => {
   };
 
   const handleStatusChange = (id: string, newStatus: string) => {
-    let rejection_reason;
     if (newStatus === 'rejected') {
-      rejection_reason = prompt('سبب الرفض:');
+      const rejection_reason = prompt('سبب الرفض:');
       if (!rejection_reason) return;
+      updateStatusMutation.mutate({ id, status: newStatus, rejection_reason });
+    } else if (newStatus === 'opportunity') {
+      const opportunity_notes = prompt('ملاحظات الفرصة:');
+      if (!opportunity_notes) return;
+      updateStatusMutation.mutate({ id, status: newStatus, opportunity_notes });
+    } else {
+      updateStatusMutation.mutate({ id, status: newStatus });
     }
-    updateStatusMutation.mutate({ id, status: newStatus, rejection_reason });
   };
 
   const handleExport = () => {
