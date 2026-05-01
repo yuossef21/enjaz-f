@@ -566,10 +566,10 @@ const LeadViewModal = ({ lead, onClose }: { lead: Lead; onClose: () => void }) =
             </div>
           )}
 
-          {lead.status === 'opportunity' && (lead as any).opportunity_notes && (
+          {lead.status === 'opportunity' && lead.opportunity_notes && (
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <p className="text-sm text-green-600 mb-2">ملاحظات الفرصة</p>
-              <p className="text-green-900 whitespace-pre-wrap">{(lead as any).opportunity_notes}</p>
+              <p className="text-green-900 whitespace-pre-wrap">{lead.opportunity_notes}</p>
             </div>
           )}
 

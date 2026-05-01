@@ -21,6 +21,7 @@ export interface Lead {
   reviewed_by?: string;
   reviewed_at?: string;
   rejection_reason?: string;
+  opportunity_notes?: string;
   created_at: string;
   updated_at: string;
   promoter?: {
