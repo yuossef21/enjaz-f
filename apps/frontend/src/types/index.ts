@@ -154,7 +154,9 @@ export interface PaymentVoucher {
   voucher_number: string;
   voucher_date: string;
   account_id: string;
+  employee_id?: string;
   amount: number;
+  paid_to: string;
   payment_method: 'cash' | 'bank_transfer' | 'check';
   reference_number?: string;
   description?: string;
