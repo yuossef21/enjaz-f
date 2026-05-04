@@ -186,7 +186,7 @@ export const PaymentVouchersPage = () => {
                           >
                             <Printer className="w-4 h-4" />
                           </button>
-                          {hasPermission('vouchers:update') && voucher.status === 'draft' && (
+                          {hasPermission('vouchers:update') && (
                             <button
                               onClick={() => handleEdit(voucher)}
                               className="p-1 text-blue-600 hover:bg-blue-50 rounded"
@@ -213,7 +213,7 @@ export const PaymentVouchersPage = () => {
                               <Send className="w-4 h-4" />
                             </button>
                           )}
-                          {hasPermission('vouchers:delete') && voucher.status === 'draft' && (
+                          {hasPermission('vouchers:delete') && (
                             <button
                               onClick={() => handleDelete(voucher.id)}
                               className="p-1 text-red-600 hover:bg-red-50 rounded"
