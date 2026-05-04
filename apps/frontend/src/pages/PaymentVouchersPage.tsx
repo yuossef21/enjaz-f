@@ -3,11 +3,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentVouchersService } from '@/services/payment-vouchers.service';
 import { employeesService } from '@/services/employees.service';
 import { Layout } from '@/components/layout/Layout';
-import { Plus, Check, Send, Trash2 } from 'lucide-react';
+import { Plus, Check, Send, Trash2, Printer, Edit } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { PaymentVoucherPrint } from '@/components/payment-vouchers/PaymentVoucherPrint';
 
 export const PaymentVouchersPage = () => {
   const [showForm, setShowForm] = useState(false);
+  const [editingVoucher, setEditingVoucher] = useState<any>(null);
+  const [printVoucherId, setPrintVoucherId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const queryClient = useQueryClient();
   const { hasPermission } = useAuthStore();
@@ -54,6 +57,15 @@ export const PaymentVouchersPage = () => {
     if (confirm('هل أنت متأكد من حذف هذا السند؟')) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleEdit = (voucher: any) => {
+    setEditingVoucher(voucher);
+    setShowForm(true);
+  };
+
+  const handlePrint = (id: string) => {
+    setPrintVoucherId(id);
   };
 
   const getStatusBadge = (status: string) => {
@@ -167,6 +179,22 @@ export const PaymentVouchersPage = () => {
                       <td className="px-6 py-4">{getStatusBadge(voucher.status)}</td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          <button
+                            onClick={() => handlePrint(voucher.id)}
+                            className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                            title="طباعة"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </button>
+                          {hasPermission('vouchers:update') && voucher.status === 'draft' && (
+                            <button
+                              onClick={() => handleEdit(voucher)}
+                              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                              title="تعديل"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
                           {hasPermission('vouchers:approve') && voucher.status === 'draft' && (
                             <button
                               onClick={() => handleApprove(voucher.id)}
@@ -208,11 +236,23 @@ export const PaymentVouchersPage = () => {
 
         {showForm && (
           <PaymentVoucherForm
-            onClose={() => setShowForm(false)}
+            voucher={editingVoucher}
+            onClose={() => {
+              setShowForm(false);
+              setEditingVoucher(null);
+            }}
             onSuccess={() => {
               queryClient.invalidateQueries({ queryKey: ['payment-vouchers'] });
               setShowForm(false);
+              setEditingVoucher(null);
             }}
+          />
+        )}
+
+        {printVoucherId && (
+          <PaymentVoucherPrint
+            voucherId={printVoucherId}
+            onClose={() => setPrintVoucherId(null)}
           />
         )}
       </div>
@@ -221,20 +261,22 @@ export const PaymentVouchersPage = () => {
 };
 
 const PaymentVoucherForm = ({
+  voucher,
   onClose,
   onSuccess,
 }: {
+  voucher?: any;
   onClose: () => void;
   onSuccess: () => void;
 }) => {
   const [formData, setFormData] = useState({
-    voucher_date: new Date().toISOString().split('T')[0],
-    account_id: '',
-    employee_id: '',
-    amount: 0,
-    payment_method: 'cash',
-    reference_number: '',
-    description: '',
+    voucher_date: voucher?.voucher_date?.split('T')[0] || new Date().toISOString().split('T')[0],
+    account_id: voucher?.account_id || '',
+    employee_id: voucher?.employee_id || '',
+    amount: voucher?.amount || 0,
+    payment_method: voucher?.payment_method || 'cash',
+    reference_number: voucher?.reference_number || '',
+    description: voucher?.description || '',
   });
 
   const { data: employees } = useQuery({
@@ -243,7 +285,12 @@ const PaymentVoucherForm = ({
   });
 
   const mutation = useMutation({
-    mutationFn: (data: any) => paymentVouchersService.createPaymentVoucher(data),
+    mutationFn: (data: any) => {
+      if (voucher) {
+        return paymentVouchersService.updatePaymentVoucher(voucher.id, data);
+      }
+      return paymentVouchersService.createPaymentVoucher(data);
+    },
     onSuccess,
   });
 
@@ -256,7 +303,9 @@ const PaymentVoucherForm = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-xl font-bold text-gray-900">سند صرف جديد</h3>
+          <h3 className="text-xl font-bold text-gray-900">
+            {voucher ? 'تعديل سند الصرف' : 'سند صرف جديد'}
+          </h3>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
