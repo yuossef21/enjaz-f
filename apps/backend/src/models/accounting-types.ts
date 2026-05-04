@@ -21,8 +21,10 @@ export interface PaymentVoucher {
   amount: number;
   currency: string;
   paid_to: string;
-  payment_method: 'cash' | 'bank_transfer' | 'cheque';
+  payment_method: 'cash' | 'bank_transfer' | 'check';
   account_id?: string;
+  employee_id?: string;
+  reference_number?: string;
   description?: string;
   status: 'draft' | 'approved' | 'posted' | 'cancelled';
   created_by?: string;
