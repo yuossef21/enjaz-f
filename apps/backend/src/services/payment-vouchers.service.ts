@@ -107,9 +107,14 @@ export const paymentVouchersService = {
   },
 
   async updatePaymentVoucher(id: string, updates: Partial<PaymentVoucher>) {
+    // Clean up empty string values for UUID fields
+    const cleanedUpdates: any = { ...updates };
+    if (cleanedUpdates.account_id === '') delete cleanedUpdates.account_id;
+    if (cleanedUpdates.employee_id === '') delete cleanedUpdates.employee_id;
+
     const { data, error } = await supabase
       .from('payment_vouchers')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...cleanedUpdates, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single();
