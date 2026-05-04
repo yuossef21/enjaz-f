@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentVouchersService } from '@/services/payment-vouchers.service';
+import { employeesService } from '@/services/employees.service';
 import { Layout } from '@/components/layout/Layout';
 import { Plus, Check, Send, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
@@ -229,10 +230,16 @@ const PaymentVoucherForm = ({
   const [formData, setFormData] = useState({
     voucher_date: new Date().toISOString().split('T')[0],
     account_id: '',
+    employee_id: '',
     amount: 0,
     payment_method: 'cash',
     reference_number: '',
     description: '',
+  });
+
+  const { data: employees } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => employeesService.getEmployees({ status: 'active' }),
   });
 
   const mutation = useMutation({
@@ -281,6 +288,25 @@ const PaymentVoucherForm = ({
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              اسم الموظف *
+            </label>
+            <select
+              required
+              value={formData.employee_id}
+              onChange={(e) => setFormData({ ...formData, employee_id: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">اختر الموظف</option>
+              {employees?.map((employee: any) => (
+                <option key={employee.id} value={employee.id}>
+                  {employee.full_name} - {employee.employee_code}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
