@@ -72,6 +72,24 @@ export const paymentVouchersService = {
     if (cleanedData.account_id === '') delete cleanedData.account_id;
     if (cleanedData.employee_id === '') delete cleanedData.employee_id;
 
+    // If employee_id is provided, get employee name for paid_to
+    if (cleanedData.employee_id) {
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('full_name')
+        .eq('id', cleanedData.employee_id)
+        .single();
+
+      if (employee) {
+        cleanedData.paid_to = employee.full_name;
+      }
+    }
+
+    // If paid_to is still not set, use description or default value
+    if (!cleanedData.paid_to) {
+      cleanedData.paid_to = cleanedData.description || 'غير محدد';
+    }
+
     const { data, error } = await supabase
       .from('payment_vouchers')
       .insert({
