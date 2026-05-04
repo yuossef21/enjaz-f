@@ -67,10 +67,15 @@ export const paymentVouchersService = {
 
     const voucherNumber = `PV-${year}-${String((count || 0) + 1).padStart(5, '0')}`;
 
+    // Clean up empty string values for UUID fields
+    const cleanedData: any = { ...voucherData };
+    if (cleanedData.account_id === '') delete cleanedData.account_id;
+    if (cleanedData.employee_id === '') delete cleanedData.employee_id;
+
     const { data, error } = await supabase
       .from('payment_vouchers')
       .insert({
-        ...voucherData,
+        ...cleanedData,
         voucher_number: voucherNumber,
       })
       .select()
