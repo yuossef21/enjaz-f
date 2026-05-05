@@ -190,7 +190,8 @@ export const leadsService = {
       { header: 'المصدر', key: 'source', width: 15 },
       { header: 'المروج', key: 'promoter', width: 20 },
       { header: 'تاريخ الإنشاء', key: 'created_at', width: 20 },
-      { header: 'ملاحظات', key: 'notes', width: 30 },
+      { header: 'ملاحظات المروج', key: 'promoter_notes', width: 30 },
+      { header: 'ملاحظات المراجع', key: 'reviewer_notes', width: 30 },
     ];
 
     leads.forEach((lead: any) => {
@@ -206,7 +207,8 @@ export const leadsService = {
           'Asia/Baghdad',
           'yyyy-MM-dd HH:mm:ss'
         ),
-        notes: lead.notes || '',
+        promoter_notes: lead.notes || '',
+        reviewer_notes: lead.rejection_reason || lead.opportunity_notes || '',
       });
     });
 
