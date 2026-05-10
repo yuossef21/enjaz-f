@@ -37,7 +37,10 @@ export const LeadsPage = () => {
     enabled: canViewAllLeads,
   });
 
-  const promoters = users?.filter((u: any) => u.role === 'promoter') || [];
+  // Include all users who can create leads (promoters and users with leads:create permission)
+  const promoters = users?.filter((u: any) =>
+    u.role === 'promoter' || u.permissions?.includes('leads:create') || u.permissions?.includes('*')
+  ) || [];
 
   const exportMutation = useMutation({
     mutationFn: leadsService.exportToExcel,
@@ -87,7 +90,7 @@ export const LeadsPage = () => {
   };
 
   const handleExport = () => {
-    exportMutation.mutate({ status: statusFilter });
+    exportMutation.mutate({ status: statusFilter, promoter_id: promoterFilter });
   };
 
   const getStatusBadge = (status: string) => {

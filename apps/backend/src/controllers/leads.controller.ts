@@ -119,12 +119,13 @@ export const leadsController = {
 
   async exportToExcel(req: AuthRequest, res: Response) {
     try {
-      const { status } = req.query;
+      const { status, promoter_id } = req.query;
       const userId = req.user!.role === 'promoter' ? req.user!.userId : undefined;
 
       const buffer = await leadsService.exportToExcel({
         status: status as string,
         userId,
+        promoterId: promoter_id as string,
       });
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

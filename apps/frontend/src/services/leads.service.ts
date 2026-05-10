@@ -47,7 +47,7 @@ export const leadsService = {
     return data;
   },
 
-  async exportToExcel(params?: { status?: string }): Promise<Blob> {
+  async exportToExcel(params?: { status?: string; promoter_id?: string }): Promise<Blob> {
     const { data } = await api.get('/leads/export', {
       params,
       responseType: 'blob',

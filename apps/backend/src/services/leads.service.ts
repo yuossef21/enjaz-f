@@ -172,11 +172,13 @@ export const leadsService = {
     return stats;
   },
 
-  async exportToExcel(filters: { status?: string; userId?: string }) {
+  async exportToExcel(filters: { status?: string; userId?: string; promoterId?: string }) {
     const leads = await this.getLeads({
       status: filters.status,
+      promoterId: filters.promoterId,
       userId: filters.userId || '',
       role: filters.userId ? 'promoter' : 'admin',
+      canViewAll: true,
     });
 
     const workbook = new ExcelJS.Workbook();
