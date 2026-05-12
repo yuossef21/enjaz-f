@@ -21,6 +21,14 @@ const ALL_PERMISSIONS = [
   { id: 'customers:edit', label: 'تعديل عميل', category: 'العملاء' },
   { id: 'customers:delete', label: 'حذف عميل', category: 'العملاء' },
 
+  { id: 'customer_issues:view', label: 'عرض مشاكل العملاء', category: 'مشاكل العملاء' },
+  { id: 'customer_issues:view_all', label: 'عرض جميع المشاكل', category: 'مشاكل العملاء' },
+  { id: 'customer_issues:create', label: 'إضافة مشكلة', category: 'مشاكل العملاء' },
+  { id: 'customer_issues:update', label: 'تعديل مشكلة', category: 'مشاكل العملاء' },
+  { id: 'customer_issues:resolve', label: 'حل المشاكل', category: 'مشاكل العملاء' },
+  { id: 'customer_issues:delete', label: 'حذف مشكلة', category: 'مشاكل العملاء' },
+  { id: 'customer_issues:export', label: 'تصدير Excel للمشاكل', category: 'مشاكل العملاء' },
+
   { id: 'invoices:view', label: 'عرض الفواتير', category: 'الفواتير' },
   { id: 'invoices:create', label: 'إنشاء فاتورة', category: 'الفواتير' },
   { id: 'invoices:edit', label: 'تعديل فاتورة', category: 'الفواتير' },

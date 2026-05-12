@@ -6,6 +6,7 @@ import { LeadsPage } from '@/pages/LeadsPage';
 import { AttendancePage } from '@/pages/AttendancePage';
 import { UsersPage } from '@/pages/UsersPage';
 import { CustomersPage } from '@/pages/CustomersPage';
+import { CustomerIssuesPage } from '@/pages/CustomerIssuesPage';
 import { InvoicesPage } from '@/pages/InvoicesPage';
 import { ExpenseClaimsPage } from '@/pages/ExpenseClaimsPage';
 import { PaymentVouchersPage } from '@/pages/PaymentVouchersPage';
@@ -74,6 +75,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CustomersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer-issues"
+            element={
+              <ProtectedRoute>
+                <CustomerIssuesPage />
               </ProtectedRoute>
             }
           />

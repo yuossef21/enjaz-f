@@ -89,6 +89,31 @@ export interface Customer {
   updated_at: string;
 }
 
+export interface CustomerIssue {
+  id: string;
+  customer_name: string;
+  phone: string;
+  issue_description: string;
+  status: 'pending' | 'resolved' | 'unresolved';
+  notes?: string;
+  resolution_notes?: string;
+  created_by?: string;
+  resolved_by?: string;
+  resolved_at?: string;
+  created_at: string;
+  updated_at: string;
+  creator?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  resolver?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+}
+
 export interface Invoice {
   id: string;
   invoice_number: string;

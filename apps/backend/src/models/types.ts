@@ -37,6 +37,21 @@ export interface Attendance {
   created_at: string;
 }
 
+export interface CustomerIssue {
+  id: string;
+  customer_name: string;
+  phone: string;
+  issue_description: string;
+  status: 'pending' | 'resolved' | 'unresolved';
+  notes?: string;
+  resolution_notes?: string;
+  created_by?: string;
+  resolved_by?: string;
+  resolved_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AuditLog {
   id: string;
   user_id?: string;

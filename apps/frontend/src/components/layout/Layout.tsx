@@ -82,6 +82,7 @@ export const Layout = ({ children }: LayoutProps) => {
     { to: '/dashboard', icon: LayoutDashboard, label: 'لوحة التحكم', permission: null },
     { to: '/leads', icon: FileText, label: 'الطلبات', permission: 'leads:view' },
     { to: '/customers', icon: UserCircle, label: 'العملاء', permission: 'customers:view' },
+    { to: '/customer-issues', icon: FileText, label: 'مشاكل العملاء', permission: 'customer_issues:view' },
     { to: '/invoices', icon: Receipt, label: 'الفواتير', permission: 'invoices:view' },
     { to: '/expense-claims', icon: DollarSign, label: 'المصروفات', permission: 'expenses:view' },
     { to: '/payment-vouchers', icon: Package, label: 'سندات الصرف', permission: 'vouchers:view' },
